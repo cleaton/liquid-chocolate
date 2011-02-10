@@ -29,9 +29,9 @@ KBUILD_CFLAGS += -I$(LINUXDIR)/include -I$(shell pwd)
 
 
 #obj-$(CONFIG_BROADCOM_WIFI)-m	+= bcm4325.o
-obj-m	+= dhd.o
+obj-m	+= bcm4329.o
 
-dhd-y := src/dhd/sys/dhd_linux.o \
+bcm4329-y := src/dhd/sys/dhd_linux.o \
 		src/shared/bcmutils.o \
 		src/dhd/sys/dhd_common.o \
 		src/shared/siutils.o \

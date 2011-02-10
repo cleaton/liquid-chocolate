@@ -5165,7 +5165,9 @@ static int iwpriv_fw_reload(struct net_device *dev,
 	int ret = -1;
 	char extra[256];
 	char *fwstr = fw_path;
-
+	
+     strcpy(fw_path, "/etc/wifi/bcm4325_apsta.bin");
+     
 	WL_SOFTAP(("current firmware_path[]=%s\n", fwstr));
 
 	WL_TRACE((">Got FW_RELOAD cmd:"

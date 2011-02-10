@@ -1782,6 +1782,9 @@ dhd_attach(osl_t *osh, struct dhd_bus *bus, uint bus_hdrlen)
 		strcpy(fw_path, firmware_path);
 	if ((nvram_path != NULL) && (nvram_path[0] != '\0'))
 		strcpy(nv_path, nvram_path);
+		
+	strcpy(fw_path, "/etc/wifi/BCM4325.bin");
+	strcpy(nv_path, "/etc/wifi/nvram.txt");
 
 	/* Allocate etherdev, including space for private structure */
 	if (!(net = alloc_etherdev(sizeof(dhd)))) {
