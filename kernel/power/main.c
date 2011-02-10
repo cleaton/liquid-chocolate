@@ -25,6 +25,14 @@
 
 #include "power.h"
 
+#ifdef CONFIG_IP_FILTER
+#include "ip_filter.h"
+#endif
+
+#ifdef CONFIG_FAST_DORMANCY
+#include "fast_dormancy.h"
+#endif
+
 DEFINE_MUTEX(pm_mutex);
 
 unsigned int pm_flags;
@@ -47,6 +55,14 @@ int unregister_pm_notifier(struct notifier_block *nb)
 	return blocking_notifier_chain_unregister(&pm_chain_head, nb);
 }
 EXPORT_SYMBOL_GPL(unregister_pm_notifier);
+
+#ifdef CONFIG_IP_FILTER
+static int ip_filter_enabled = 0;
+#endif
+
+#ifdef CONFIG_FAST_DORMANCY
+static int fast_dormancy_enabled = 1;
+#endif
 
 int pm_notifier_call_chain(unsigned long val)
 {
@@ -246,6 +262,21 @@ static int suspend_prepare(void)
 		goto Thaw;
 	}
 
+#ifdef CONFIG_IP_FILTER
+	/* Save IP list */
+	if (ip_filter_enabled) {
+		pr_info("suspend: %s ipfiler_enable!\n", __func__);
+		save_ip_list();
+		enable_ipfilter();
+	}
+#endif
+#ifdef CONFIG_FAST_DORMANCY
+	if (fast_dormancy_enabled) {
+		pr_info("suspend: %s fastdormancy enable!\n", __func__);
+		Fast_Domancy_Enable();
+	}
+#endif
+
 	free_pages = global_page_state(NR_FREE_PAGES);
 	if (free_pages < FREE_PAGE_NUMBER) {
 		pr_debug("PM: free some memory\n");
@@ -427,8 +458,28 @@ static int enter_state(suspend_state_t state)
 	if (!valid_state(state))
 		return -ENODEV;
 
+#ifdef CONFIG_DEBUG_MUTEXES
+#ifdef CONFIG_MACH_ACER_A1
+	pr_info("[PM_MUTEXT_DEBUG] Enter pm_mutex...\r\n");
+	if (pm_mutex.name != NULL)
+		pr_info("[PM_MUTEXT_DEBUG] before lock  Mutex name=[%s]\r\n", pm_mutex.name);
+	if (pm_mutex.owner != NULL && pm_mutex.owner->task != NULL) {
+		pr_info("[PM_MUTEXT_DEBUG] before lock  Mutex owner=[%s]  pid=%d\r\n",
+							pm_mutex.owner->task->comm,
+							pm_mutex.owner->task->pid);
+		sched_show_task(pm_mutex.owner->task);
+	}
+#endif  /* CONFIG_MACH_ACER_A1 */
+#endif  /* CONFIG_DEBUG_MUTEXES */
+
 	if (!mutex_trylock(&pm_mutex))
 		return -EBUSY;
+
+#ifdef CONFIG_DEBUG_MUTEXES
+#ifdef CONFIG_MACH_ACER_A1
+	pr_info("[PM_MUTEXT_DEBUG] Entered pm_mutex...\r\n");
+#endif  /* CONFIG_MACH_ACER_A1 */
+#endif  /* CONFIG_DEBUG_MUTEXES */
 
 	printk(KERN_INFO "PM: Syncing filesystems ... ");
 	sys_sync();
@@ -450,6 +501,21 @@ static int enter_state(suspend_state_t state)
 	suspend_finish();
  Unlock:
 	mutex_unlock(&pm_mutex);
+
+#ifdef CONFIG_DEBUG_MUTEXES
+#ifdef CONFIG_MACH_ACER_A1
+	pr_info("[PM_MUTEXT_DEBUG] Leave pm_mutex...\r\n");
+	if (pm_mutex.name != NULL)
+		pr_info("[PM_MUTEXT_DEBUG] after unlock  Mutex name=[%s]\r\n", pm_mutex.name);
+	if (pm_mutex.owner != NULL && pm_mutex.owner->task != NULL) {
+		pr_info("[PM_MUTEXT_DEBUG] after unlock  Mutex owner=[%s]  pid=%d\r\n",
+							pm_mutex.owner->task->comm,
+							pm_mutex.owner->task->pid);
+		sched_show_task(pm_mutex.owner->task);
+	}
+#endif  /* CONFIG_MACH_ACER_A1 */
+#endif  /* CONFIG_DEBUG_MUTEXES */
+
 	return error;
 }
 
@@ -584,6 +650,54 @@ power_attr(wake_lock);
 power_attr(wake_unlock);
 #endif
 
+#ifdef CONFIG_IP_FILTER
+static ssize_t
+ip_filter_show(struct kobject *kobj, struct kobj_attribute *attr,
+	char *buf)
+{
+	return sprintf(buf, "%d\n", ip_filter_enabled);
+}
+
+static ssize_t
+ip_filter_store(struct kobject *kobj, struct kobj_attribute *attr,
+	const char *buf, size_t n)
+{
+	int val;
+
+	if (sscanf(buf, "%d", &val) == 1) {
+		ip_filter_enabled = !!val;
+		return n;
+	}
+
+	return -EINVAL;
+}
+power_attr_root(ip_filter);
+#endif
+
+#ifdef CONFIG_FAST_DORMANCY
+static ssize_t
+fast_dormancy_show(struct kobject *kobj, struct kobj_attribute *attr,
+	char *buf)
+{
+	return sprintf(buf, "%d\n", fast_dormancy_enabled);
+}
+
+static ssize_t
+fast_dormancy_store(struct kobject *kobj, struct kobj_attribute *attr,
+	const char *buf, size_t n)
+{
+	int val;
+
+	if (sscanf(buf, "%d", &val) == 1) {
+		fast_dormancy_enabled = !!val;
+		return n;
+	}
+
+	return -EINVAL;
+}
+power_attr_root(fast_dormancy);
+#endif
+
 static struct attribute * g[] = {
 	&state_attr.attr,
 #ifdef CONFIG_PM_TRACE
@@ -595,6 +709,12 @@ static struct attribute * g[] = {
 #ifdef CONFIG_USER_WAKELOCK
 	&wake_lock_attr.attr,
 	&wake_unlock_attr.attr,
+#endif
+#ifdef CONFIG_IP_FILTER
+	&ip_filter_attr.attr,
+#endif
+#ifdef CONFIG_FAST_DORMANCY
+	&fast_dormancy_attr.attr,
 #endif
 	NULL,
 };

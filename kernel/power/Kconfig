@@ -19,6 +19,15 @@ config PM
 	  will issue the hlt instruction if nothing is to be done, thereby
 	  sending the processor to sleep and saving power.
 
+config IP_FILTER
+	bool "Enable IP filter support"
+	depends on PM
+
+config FAST_DORMANCY
+	bool "Enable FAST DORMANCY support"
+	depends on PM
+
+
 config PM_DEBUG
 	bool "Power Management Debug Support"
 	depends on PM

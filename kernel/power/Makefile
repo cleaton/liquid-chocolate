@@ -17,3 +17,5 @@ obj-$(CONFIG_MAGIC_SYSRQ)	+= poweroff.o
 obj-$(CONFIG_NPA)		+= npa.o npa_pm_qos.o
 obj-$(CONFIG_NPA_REMOTE)	+= npa_remote.o
 
+obj-$(CONFIG_IP_FILTER)		+= ip_filter.o
+obj-$(CONFIG_FAST_DORMANCY)	+= fast_dormancy.o

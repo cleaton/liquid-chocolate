@@ -63,6 +63,16 @@ static struct kobj_attribute _name##_attr = {	\
 	.store	= _name##_store,		\
 }
 
+#define power_attr_root(_name) \
+static struct kobj_attribute _name##_attr = {	\
+	.attr	= {				\
+		.name = __stringify(_name),	\
+		.mode = 0666,			\
+	},					\
+	.show	= _name##_show,			\
+	.store	= _name##_store,		\
+}
+
 /* Preferred image size in bytes (default 500 MB) */
 extern unsigned long image_size;
 extern int in_suspend;
