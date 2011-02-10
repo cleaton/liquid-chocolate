@@ -1,0 +1,10 @@
+config BCM4325
+       tristate "Broadcom 4325 wireless cards support"
+       depends on WIRELESS_EXT && MMC_WIFI
+       ---help---
+         This module adds support for wireless adapters based on
+         Broadcom 4325 chipset.
+         This driver uses the kernel's wireless extensions subsystem.
+         If you choose to build a module, it'll be called dhd. Say M if
+         unsure.
+
