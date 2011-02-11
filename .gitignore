@@ -28,7 +28,7 @@
 *.bin
 *.gz
 *.patch
-
+*.rej
 
 #
 # Top-level generic files
