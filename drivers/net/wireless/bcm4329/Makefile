@@ -15,6 +15,7 @@ EXTRA_CFLAGS = -DLINUX -DBCMDRIVER -DBCMDONGLEHOST -DDHDTHREAD -DBCMWPA2 -DBCMWA
 
 # SOFTAP
 EXTRA_CFLAGS += -DSOFTAP
+EXTRA_LDFLAGS += --strip-debug
 
 ###########################################################################################################################################################################
 
