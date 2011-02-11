@@ -29,6 +29,7 @@
 *.gz
 *.patch
 *.rej
+*.diff
 
 #
 # Top-level generic files
