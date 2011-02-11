@@ -521,12 +521,11 @@ void posix_cpu_timers_exit(struct task_struct *tsk)
 }
 void posix_cpu_timers_exit_group(struct task_struct *tsk)
 {
-	struct signal_struct *const sig = tsk->signal;
+	struct task_cputime cputime;
 
+	thread_group_cputimer(tsk, &cputime);
 	cleanup_timers(tsk->signal->cpu_timers,
-		       cputime_add(tsk->utime, sig->utime),
-		       cputime_add(tsk->stime, sig->stime),
-		       tsk->se.sum_exec_runtime + sig->sum_sched_runtime);
+		       cputime.utime, cputime.stime, cputime.sum_exec_runtime);
 }
 
 static void clear_dead_task(struct k_itimer *timer, union cpu_time_count now)
@@ -1372,8 +1371,7 @@ static inline int fastpath_timer_check(struct task_struct *tsk)
 		if (task_cputime_expired(&group_sample, &sig->cputime_expires))
 			return 1;
 	}
-
-	return sig->rlim[RLIMIT_CPU].rlim_cur != RLIM_INFINITY;
+	return 0;
 }
 
 /*
@@ -1421,18 +1419,19 @@ void run_posix_cpu_timers(struct task_struct *tsk)
 	 * timer call will interfere.
 	 */
 	list_for_each_entry_safe(timer, next, &firing, it.cpu.entry) {
-		int cpu_firing;
+		int firing;
 		spin_lock(&timer->it_lock);
 		list_del_init(&timer->it.cpu.entry);
-		cpu_firing = timer->it.cpu.firing;
+		firing = timer->it.cpu.firing;
 		timer->it.cpu.firing = 0;
 		/*
 		 * The firing flag is -1 if we collided with a reset
 		 * of the timer, which already reported this
 		 * almost-firing as an overrun.  So don't generate an event.
 		 */
-		if (likely(cpu_firing >= 0))
+		if (likely(firing >= 0)) {
 			cpu_timer_fire(timer);
+		}
 		spin_unlock(&timer->it_lock);
 	}
 }
