@@ -1077,6 +1077,7 @@ static struct logger_log VAR = { \
 DEFINE_LOGGER_DEVICE(log_main, LOGGER_LOG_MAIN, 64*1024)
 DEFINE_LOGGER_DEVICE(log_events, LOGGER_LOG_EVENTS, 256*1024)
 DEFINE_LOGGER_DEVICE(log_radio, LOGGER_LOG_RADIO, 64*1024)
+DEFINE_LOGGER_DEVICE(log_system, LOGGER_LOG_SYSTEM, 64*1024)
 
 static struct logger_log *get_log_from_minor(const int minor)
 {
@@ -1086,6 +1087,8 @@ static struct logger_log *get_log_from_minor(const int minor)
 		return &log_events;
 	if (log_radio.misc.minor == minor)
 		return &log_radio;
+	if (log_system.misc.minor == minor)
+  		return &log_system;
 	return NULL;
 }
 
@@ -1234,6 +1237,10 @@ static int __init logger_init(void)
 	if (unlikely(ret))
 		goto out_destroy_events;
 
+	ret = init_log(&log_system);
+	if (unlikely(ret))
+		goto out_destroy_system;
+
 /* leave room for more init functionality */
 	goto out;
 
@@ -1243,7 +1250,10 @@ out_destroy_main:
 	destroy_log(&log_main);
 out_unregister_kset:
 	kset_unregister(logger_kset);
+out_destroy_system:
+	destroy_log(&log_system);
 out:
 	return ret;
 }
 device_initcall(logger_init);
+
