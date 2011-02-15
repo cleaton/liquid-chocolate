@@ -192,6 +192,10 @@ struct isl_data {
 	wait_queue_head_t wait;
 };
 static struct isl_data *isl_data;
+static unsigned char lastmode = 0;
+static unsigned long long lastproxtime = 0;
+static unsigned short proxhold = 0;
+
 
 /*File operation of ISL device file */
 static const struct file_operations isl_fops = {
@@ -415,6 +419,7 @@ static int isl_ioctl(struct inode *inode, struct file *file, unsigned int cmd, u
 	int isl_cmd = 0;
 	unsigned char data[2] = {0};
 	struct i2c_client *client = isl_data->client;
+	unsigned short temp = 0;
 
 	/* check cmd */
 	if (_IOC_TYPE(cmd) != ISL29018_IOC_MAGIC) {
@@ -453,6 +458,7 @@ static int isl_ioctl(struct inode *inode, struct file *file, unsigned int cmd, u
 				pr_err("[ISL] ISL29018_SET_MODE: input value out of range: [%u]\n", data[0]);
 				return -EFAULT;
 			}
+			lastmode = data[0];
 			_I2C_WRITE_BIT(ISL29018_MODE, data[0]);
 			/* When setting off mode, reset IC interal state to prevent the wrong situation that output vaule equals zero */
 			/* Note: This register is un-specifitcation, but we confirm this feature with Intersil */
@@ -591,6 +597,35 @@ static int isl_ioctl(struct inode *inode, struct file *file, unsigned int cmd, u
 			/* hw limit */
 			msleep(10);
 			_I2C_READ_SHORT(ISL29018_DATA, data);
+			/* by phoenix, 2011/02/05 */
+			if (lastmode == ISL29018_ALS_ONCE_MODE) {//Ambient light sensing
+				temp = (data[1]<<8) + data[0];
+				temp <<= 4;
+				data[0] = temp&0xff;
+				data[1] = (temp>>8)&0xff;
+			}
+			if (lastmode == ISL29018_PROX_ONCE_MODE) {//Proximity sensing
+				temp = (data[1]<<8) + data[0];	
+				//_I2C_WRITE_BIT(ISL29018_MODE, ISL29018_IR_ONCE_MODE);//IR sensing
+				//msleep(100);
+				//_I2C_READ_SHORT(ISL29018_DATA, data);
+				//if (temp > ((data[1]<<8) + data[0]))
+				//	temp = temp - ((data[1]<<8) + data[0]);
+				
+				if (jiffies*1000/HZ-lastproxtime > 2000) {
+					proxhold = temp;
+					temp = 0;
+				}
+				else {
+					if ((temp>proxhold && (temp-proxhold>=300)) || temp>800)
+						temp = -1;//near
+					else
+						temp = 0;//far
+				}				
+				data[0] = temp&0xff;
+				data[1] = (temp>>8)&0xff;
+				lastproxtime = jiffies*1000/HZ;
+			}
 			if (0!=copy_to_user((short*)arg,(short*)data,2)) {
 				pr_err("[ISL] ISL29018_GET_DATA: copy_to_user error\n");
 				return -EFAULT;
@@ -681,4 +716,3 @@ module_exit(isl_exit);
 
 MODULE_AUTHOR("Andrew <Andrew_Chen@acer.com.tw>");
 MODULE_DESCRIPTION("i2c isl29018 driver");
-
