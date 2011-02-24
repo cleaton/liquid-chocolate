@@ -21,6 +21,7 @@
 #if defined (MIUI)
 #define AUO_TS_X_MAX             480
 #endif
+
 #define AUO_TS_Y_MIN             0
 #define AUO_TS_Y_MAX             790
 #if defined (MIUI)
@@ -458,7 +459,7 @@ static int __init h353vl01_register_input(struct input_dev *input)
 	input_set_abs_params(input, ABS_TOOL_WIDTH, 0, 1, 0, 0);
 
 	input_set_abs_params(input, ABS_MT_POSITION_X, AUO_TS_X_MIN, AUO_TS_X_MAX, 0, 0);
-	input_set_abs_params(input, ABS_MT_POSITION_X, AUO_TS_Y_MIN, AUO_TS_Y_MAX, 0, 0);
+	input_set_abs_params(input, ABS_MT_POSITION_Y, AUO_TS_Y_MIN, AUO_TS_Y_MAX, 0, 0);
 	input_set_abs_params(input, ABS_MT_TOUCH_MAJOR, 0, 255, 0, 0);
 	input_set_abs_params(input, ABS_MT_WIDTH_MAJOR, 0, 1, 0, 0);
 	//Android's stupid?
@@ -1011,7 +1012,7 @@ static int __init h353vl01_register_input(struct input_dev *input)
 	input_set_abs_params(input, ABS_TOOL_WIDTH, 0, 1, 0, 0);
 
 	input_set_abs_params(input, ABS_MT_POSITION_X, AUO_TS_X_MIN, AUO_TS_X_MAX, 0, 0);
-	input_set_abs_params(input, ABS_MT_POSITION_X, AUO_TS_Y_MIN, AUO_TS_Y_MAX, 0, 0);
+	input_set_abs_params(input, ABS_MT_POSITION_Y, AUO_TS_Y_MIN, AUO_TS_Y_MAX, 0, 0);
 	input_set_abs_params(input, ABS_MT_TOUCH_MAJOR, 0, 255, 0, 0);
 	input_set_abs_params(input, ABS_MT_WIDTH_MAJOR, 0, 1, 0, 0);
 	//Android's stupid?
