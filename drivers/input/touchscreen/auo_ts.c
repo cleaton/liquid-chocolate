@@ -17,13 +17,13 @@
 #define TS_DRIVER_NAME "auo-touch"
 
 #define AUO_TS_X_MIN             0
-#define AUO_TS_X_MAX             470
+#define AUO_TS_X_MAX             490
 #if defined (MIUI)
 #define AUO_TS_X_MAX             480
 #endif
 
 #define AUO_TS_Y_MIN             0
-#define AUO_TS_Y_MAX             790
+#define AUO_TS_Y_MAX             810
 #if defined (MIUI)
 #define AUO_TS_Y_MAX             800
 #endif
