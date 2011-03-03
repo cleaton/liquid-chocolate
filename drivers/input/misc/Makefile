@@ -25,3 +25,4 @@ obj-$(CONFIG_INPUT_PCF50633_PMU)	+= pcf50633-input.o
 obj-$(CONFIG_INPUT_GPIO)		+= gpio_event.o gpio_matrix.o gpio_input.o gpio_output.o gpio_axis.o
 obj-$(CONFIG_INPUT_KEYCHORD)	+= keychord.o
 obj-$(CONFIG_BMA150)			+= bma150.o
+obj-$(CONFIG_INPUT_SMB380)              += smb380.o

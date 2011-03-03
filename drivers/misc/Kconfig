@@ -298,6 +298,25 @@ config PMIC8058_PWM
 	  purposes including software controlled brightness of backlight,
 	  motor control, and waveform generation.
 
+config INPUT_YAS529
+        tristate "Yamaha YAS529 Geomagnetic Sensor"
+        depends on I2C
+
+config INPUT_YAS529_POSITION
+        int "YAS529 Mounting Position on Board"
+        depends on INPUT_YAS529
+        default "0"
+        help
+          Chip mounting position (pin 1).
+            0: top, upper-left
+            1: top, upper-right
+            2: top, lower-right
+            3: top, lower-left
+            4: bottom, upper-left
+            5: bottom, upper-right
+            6: bottom, lower-right
+            7: bottom, lower-left
+
 source "drivers/misc/c2port/Kconfig"
 source "drivers/misc/eeprom/Kconfig"
 source "drivers/misc/video_core/720p/Kconfig"
