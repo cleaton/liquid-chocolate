@@ -32,4 +32,4 @@ obj-$(CONFIG_TSIF_CHRDEV) += tsif_chrdev.o
 obj-$(CONFIG_PMIC8058_PWM) += pmic8058-pwm.o
 
 obj-$(CONFIG_APANIC)		+= apanic.o
-obj-$(CONFIG_INPUT_YAS529)                      += yas529.o
+

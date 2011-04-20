@@ -253,12 +253,4 @@ config BMA150
 	  To compile this driver as a module, choose M here: the
 	  module will be called bma150.
 
-config INPUT_SMB380
-        tristate "SMB380 Triaxial acceleration sensor"
-        depends on I2C
-        help
-          This driver provides support for the Bosche Sensortec Triaxial
-          Acceleration Sensor IC, which provides measurements of acceleration
-          in prependicular axes as well as absolute temperature measurement.
-
 endif
